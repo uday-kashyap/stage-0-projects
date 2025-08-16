@@ -14,8 +14,8 @@ libraries, and project development workflow.
 - [Formula Solver & Visualizer](./formula-solver-visualizer)  
   A solver for linear/quadratic equations with graph plotting using matplotlib and numpy.
 
-- [Basic Calculator](./basic-calculator)
+- [Basic Calculator](./basic-calculator)  
   A simple calculator with minimal functionalities.
 
-- [Basic Notepad](./tkinter-notepad)
+- [Basic Notepad](./tkinter-notepad)  
   A lightweight clone of notepad editor with Tkinter based GUI.
