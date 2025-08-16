@@ -1,6 +1,6 @@
 # Stage 0 Projects
 
-This repository contains my practice projects to strengthen Python fundamentals,
+This repository contains my practice projects to strengthen programming fundamentals,
 libraries, and project development workflow.
 
 > ⚠️ Note: These projects are for practice purposes. They may be incomplete, unstable, 
