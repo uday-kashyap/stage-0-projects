@@ -67,7 +67,7 @@ def run_interactive() -> None:
             if choice == 1:
                 city_name = input("Enter city name: ")
                 print("---------------------------------")
-                weather.get_weather(city_name)
+                weather.display_weather(city_name)
                 print("---------------------------------")
             if choice == 2:
                 print("---------------------------------")

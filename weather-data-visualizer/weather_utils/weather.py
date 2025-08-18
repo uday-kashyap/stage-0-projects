@@ -8,15 +8,15 @@ class Weather:
         self.API_KEY = api_key
         self.logger = get_logger(log_mode)
 
-    def get_weather(self, city: str) -> None:
+    def get_weather(self, city: str) -> tuple[str, str, float, str, float, float]:
         """
-        Fetch and display real-time weather information for a given city.
+        Fetch real-time weather information for a given city.
 
         Parameters:
             city (str): Name of the city for which weather data is to be fetched.
 
         Returns:
-            None: Prints temperature, condition, humidity, and feels-like temperature.
+            city name, country code, temperature, condition, humidity, and feels-like temperature.
         """
 
         url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={self.API_KEY}&units=metric"
@@ -37,14 +37,7 @@ class Weather:
             feels_like = data["main"]["feels_like"]
             humidity = data["main"]["humidity"]
 
-            print(f"Weather Report: {city_name}({country_code})")
-            print(f"Temperature: {temperature}°C")
-            print(f"Condition: {condition}")
-            print(f"Feels Like: {feels_like}°C")
-            print(f"Humidity: {humidity} %")
-            self.logger.info(
-                f"Displayed the current weather data for the city '{city}' successfully!"
-            )
+            return city_name, country_code, temperature, condition, feels_like, humidity
 
         except requests.exceptions.HTTPError as e:
             self.logger.error(f"HTTP error occurred: {e}")
@@ -57,3 +50,22 @@ class Weather:
         except KeyError as e:
             self.logger.error(f"Unexpected response format: Missing key {e}")
             print("Unexpected error. Please try again later.")
+
+    def display_weather(self, city: str) -> None:
+        """
+        Display real-time weather information for a given city.
+        """
+        weather_data =  self.get_weather(city)
+        if weather_data:
+            city_name, country_code, temperature, condition, feels_like, humidity = weather_data
+            print(f"Weather Report: {city_name}({country_code})")
+            print(f"Temperature: {temperature}°C")
+            print(f"Condition: {condition}")
+            print(f"Feels Like: {feels_like}°C")
+            print(f"Humidity: {humidity} %")
+
+            self.logger.info(
+                    f"Displayed the current weather data for the city '{city}' successfully!"
+                )
+
+

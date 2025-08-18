@@ -29,7 +29,7 @@ def test_get_weather_success(monkeypatch, sample_weather_data, capsys):
     monkeypatch.setattr(requests, "get", mock_get)
 
     weather = Weather(api_key="fake_api_key")
-    weather.get_weather("Delhi")
+    weather.display_weather("Delhi")
 
     captured = capsys.readouterr()
     assert "Weather Report: Delhi(IN)" in captured.out
@@ -53,7 +53,7 @@ def test_get_weather_failure(monkeypatch, capsys):
     monkeypatch.setattr(requests, "get", mock_get)
 
     weather = Weather(api_key="fake_api_key")
-    weather.get_weather("Nowhere")
+    weather.display_weather("Nowhere")
 
     captured = capsys.readouterr()
     assert "Could not fetch weather data. Please check the city name." in captured.out

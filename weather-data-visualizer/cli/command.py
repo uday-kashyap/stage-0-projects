@@ -52,7 +52,7 @@ def run_command_mode() -> None:
         if args.weather:
             logger.info(f"Getting current weather for city '{args.city}'")
             weather = Weather(api_key, log_mode="cli")
-            weather.get_weather(args.city)
+            weather.display_weather(args.city)
 
         logger.info("Returned from the CLI mode")
 
