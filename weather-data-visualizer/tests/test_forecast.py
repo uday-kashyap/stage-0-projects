@@ -2,6 +2,7 @@ import pytest
 import requests
 from weather_utils import Forecast
 
+
 @pytest.fixture
 def sample_forecast_data():
     return {
@@ -12,6 +13,7 @@ def sample_forecast_data():
             {"dt_txt": "2025-08-02 21:00:00", "main": {"temp": 28.5, "humidity": 65}},
         ]
     }
+
 
 class MockResponse:
     def __init__(self, data=None, status_code=200):

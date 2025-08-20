@@ -73,7 +73,7 @@ class Forecast:
 
         except requests.exceptions.HTTPError as e:
             self.logger.error(f"HTTP error occurred: {e}")
-            print("Could not fetch weather data. Please check the city name.")
+            print("Could not fetch forecast data. Please check the city name.")
 
         except requests.exceptions.RequestException as e:
             self.logger.error(f"Request failed: {e}")

@@ -55,9 +55,11 @@ class Weather:
         """
         Display real-time weather information for a given city.
         """
-        weather_data =  self.get_weather(city)
+        weather_data = self.get_weather(city)
         if weather_data:
-            city_name, country_code, temperature, condition, feels_like, humidity = weather_data
+            city_name, country_code, temperature, condition, feels_like, humidity = (
+                weather_data
+            )
             print(f"Weather Report: {city_name}({country_code})")
             print(f"Temperature: {temperature}°C")
             print(f"Condition: {condition}")
@@ -65,7 +67,5 @@ class Weather:
             print(f"Humidity: {humidity} %")
 
             self.logger.info(
-                    f"Displayed the current weather data for the city '{city}' successfully!"
-                )
-
-
+                f"Displayed the current weather data for the city '{city}' successfully!"
+            )

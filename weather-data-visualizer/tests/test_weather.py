@@ -2,6 +2,7 @@ import pytest
 import requests
 from weather_utils import Weather
 
+
 @pytest.fixture
 def sample_weather_data():
     return {
@@ -11,6 +12,7 @@ def sample_weather_data():
         "weather": [{"description": "clear sky"}],
     }
 
+
 def test_get_weather_success(monkeypatch, sample_weather_data, capsys):
     def mock_get(*args, **kwargs):
         class MockResponse:
@@ -19,7 +21,7 @@ def test_get_weather_success(monkeypatch, sample_weather_data, capsys):
 
             def json(self):
                 return sample_weather_data
-            
+
             def raise_for_status(self):
                 if self.status_code >= 400:
                     raise requests.HTTPError(f"{self.status_code} Error")
@@ -34,6 +36,7 @@ def test_get_weather_success(monkeypatch, sample_weather_data, capsys):
     captured = capsys.readouterr()
     assert "Weather Report: Delhi(IN)" in captured.out
     assert "Temperature: 33.5°C" in captured.out
+
 
 def test_get_weather_failure(monkeypatch, capsys):
     def mock_get(*args, **kwargs):
