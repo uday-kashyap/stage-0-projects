@@ -19,3 +19,6 @@ libraries, and project development workflow.
 
 - [Basic Notepad](./tkinter-notepad)  
   A lightweight clone of notepad editor with Tkinter based GUI.
+
+- [Flappy Bird Clone](./flappy-bird-clone/)  
+  A simple clone of the classic **Flappy Bird** game built with **Python** and **Pygame**.
