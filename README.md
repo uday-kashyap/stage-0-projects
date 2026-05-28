@@ -22,3 +22,6 @@ libraries, and project development workflow.
 
 - [Flappy Bird Clone](./flappy-bird-clone/)  
   A simple clone of the classic **Flappy Bird** game built with **Python** and **Pygame**.
+
+- [Quiz Game](./quiz-game/)
+  A command-line quiz game built using **Python**.
