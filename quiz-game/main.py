@@ -8,53 +8,50 @@ TOTAL_QUESTIONS = 10
 QUESTION_TYPE = "Multiple Choice"
 POINTS_PER_QUESTION = 1
 
-# Game Header
-print("Welcome to the Quiz Game!")
-print(F"Total set of questions: {TOTAL_QUESTIONS}")
-print(F"Questions type: {QUESTION_TYPE}")
-print(f"'+{POINTS_PER_QUESTION}' for each correct answer.")
-print()
+def fetch_quiz_data():
+    '''
+    Parse and validate data.
+    '''
+    
+    url = f"https://opentdb.com/api.php?amount={TOTAL_QUESTIONS}&difficulty=easy&type=multiple"
 
-# Parse data
-url = f"https://opentdb.com/api.php?amount={TOTAL_QUESTIONS}&difficulty=easy&type=multiple"
-response = requests.get(url, timeout=5)
+    try:
+        response = requests.get(url, timeout=5)
+    
+    except requests.RequestException:
+        print("Unable to connect to the server.")
+        return
 
-if response.status_code != 200:
-    print("Server Error! Data could not be fetched.")
-    exit()
+    if response.status_code != 200:
+        print("Server Error! Data could not be fetched.")
+        return
 
-data = response.json()
+    data = response.json()
 
-if data['response_code'] != 0:
-    print("API returned an invalid response.")
-    exit()
+    if data['response_code'] != 0:
+        print("API returned an invalid response.")
+        return
 
-entries = data['results']
+    return data
 
-# Game Logic
-points = 0
 
-for entry in entries:
-    question = html.unescape(entry['question'])
-    category = html.unescape(entry['category'])
+def game_header():
+    '''
+    Display game header on the game session initialization.
+    '''
 
-    print(f"Question: {question}")
-    print(f"Category: {category}")
+    print("Welcome to the Quiz Game!")
+    print(f"Total set of questions: {TOTAL_QUESTIONS}")
+    print(f"Questions type: {QUESTION_TYPE}")
+    print(f"'+{POINTS_PER_QUESTION}' for each correct answer.")
     print()
 
-    correct_answer = html.unescape(entry['correct_answer'])
-    incorrect_answers = [html.unescape(incorrect_answer) for incorrect_answer in entry['incorrect_answers']]
 
-    incorrect_answers.extend([correct_answer])
-    random.shuffle(incorrect_answers)
-
-    options = incorrect_answers
-
-    for i, option in enumerate(options):
-        print(f"{i+1}. {option}")
-        
-    print()
-
+def user_input():
+    '''
+    Obtain and validate user input.
+    '''
+    
     while True:
 
         try:
@@ -65,24 +62,79 @@ for entry in entries:
                 print()
                 continue
         
-            break # Exit loop on valid input
+            return choice # Exit loop on valid input
 
         except ValueError:
             print(f"Invalid Input! Options must be integers.")
             print()
+
+
+def run_quiz(raw_data):
+    '''
+    Main game logic.
+    '''
+
+    entries = raw_data['results']
+
+    points = 0
+
+    for entry in entries:
+        question = html.unescape(entry['question'])
+        category = html.unescape(entry['category'])
+
+        print(f"Question: {question}")
+        print(f"Category: {category}")
+        print()
+
+        correct_answer = html.unescape(entry['correct_answer'])
+        incorrect_answers = [html.unescape(incorrect_answer) for incorrect_answer in entry['incorrect_answers']]
+
+        incorrect_answers.append(correct_answer)
+        random.shuffle(incorrect_answers)
+
+        options = incorrect_answers
+
+        for i, option in enumerate(options):
+            print(f"{i+1}. {option}")
             
+        print()
 
-    if options[choice - 1] == correct_answer:
-        print("Congrats! Right answer.")
-        points += POINTS_PER_QUESTION
+        choice = user_input()
+
+        if options[choice - 1] == correct_answer:
+            print("Congrats! Right answer.")
+            points += POINTS_PER_QUESTION
+        
+        else:
+            print(f"Sorry, the correct answer is '{correct_answer}'.")
+        
+        print()
+
+        time.sleep(1) # Wait before displaying next question
+
+    return points
+
+
+def goodbye_screen(score):
+    '''
+    Display goodbye text.
+    '''
+
+    print("Game Over!")
+    print(f"You have guessed {score} / {TOTAL_QUESTIONS} questions correctly.")
+
+
+def main():
+
+    game_header()
+    raw_data = fetch_quiz_data()
+
+    if raw_data is None:
+        return
     
-    else:
-        print(f"Sorry, the correct answer is '{correct_answer}'.")
-    
-    print()
+    total_points = run_quiz(raw_data)
+    goodbye_screen(total_points)
 
-    time.sleep(1) # Wait before displaying next question
 
-# Goodbye text
-print("Game Over!")
-print(f"You have guessed {points} / 10 questions correctly.")
+if __name__ == '__main__':
+    main()
