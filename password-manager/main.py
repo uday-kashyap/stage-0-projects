@@ -1,6 +1,40 @@
 import json
 
 
+FEATURES = {
+        1: "Add account",
+        2: "Search account"
+    }
+
+
+def display_menu():
+    '''
+    Show system features menu to the user.
+    '''
+
+    for option_no, feature in FEATURES.items():
+        print(f"{option_no}. {feature}")
+
+
+def get_user_input():
+    '''
+    Take and validate user input.
+    '''
+
+    while True:
+        try:
+            choice = int(input("Enter your choice: "))
+
+            if choice not in FEATURES:
+                print("Please enter a valid option!")
+                continue
+
+            return choice # Return a valid choice
+        
+        except ValueError:
+            print("Options must be integers!")
+
+
 def get_credentials():
     '''
     Input user credentials.
@@ -61,15 +95,25 @@ def save_data(website, username, password, data):
 
 
 def main():
-    website, username, password = get_credentials()
-    data = load_data()
-    account_exists = is_account_duplicate(website, username, data)
 
-    if account_exists:
-        print("Account already exists with the same username!")
-        return
+    data = load_data()
+    display_menu()
+    user_input = get_user_input()
+
+    if user_input == 1:
+
+        website, username, password = get_credentials()
+        account_exists = is_account_duplicate(website, username, data)
+
+        if account_exists:
+            print("Account already exists with the same username!")
+            return
+        
+        save_data(website, username, password, data)
     
-    save_data(website, username, password, data)
+    elif user_input == 2:
+        print("Coming Soon!")
+
 
 if __name__ == '__main__':
     main()
