@@ -18,7 +18,7 @@ def display_menu():
 
 def get_user_input():
     '''
-    Take and validate user input.
+    Take and validate user input. Return it after validation.
     '''
 
     while True:
@@ -37,7 +37,7 @@ def get_user_input():
 
 def get_credentials():
     '''
-    Input user credentials.
+    Input and return user credentials.
     '''
 
     website = input("Enter your website (e.g., Github, Google, Apple etc): ")
@@ -47,9 +47,20 @@ def get_credentials():
     return website, username, password
 
 
+def get_website_and_username():
+    '''
+    Input and return 'website' and 'username'.
+    '''
+
+    website = input("Enter your website (e.g., Github, Google, Apple etc): ")
+    username = input("Enter your username: ")
+
+    return website, username
+
+
 def load_data():
     '''
-    Load existing data.
+    Load and return existing data.
     '''
     
     try:
@@ -60,24 +71,24 @@ def load_data():
         return {}
     
 
-def is_account_duplicate(website, username, data):
+def account_exists(website, username, data):
     '''
     Check for the pre-existing account with the same username and website name.
     '''
 
     if website in data:
         
-        for credentials in data[website]:
+        for account in data[website]:
 
-            if credentials["username"] == username:
+            if account["username"] == username:
                 return True
     
     return False
 
 
-def save_data(website, username, password, data):
+def save_account(website, username, password, data):
     '''
-    Store and save the user credentials.
+    Create new user account and store their credentials.
     '''
 
     if website not in data:
@@ -91,7 +102,21 @@ def save_data(website, username, password, data):
     with open("passwords.json", "w") as file:
         json.dump(data, file, indent=4)
     
-    print("Your credentials have been saved successfully.")
+    print("Your account has been created successfully.")
+
+
+def fetch_account(website, username, data):
+    '''
+    Fetch user account and return it.
+    '''
+
+    if not account_exists(website, username, data):
+        return {}
+    
+    for account in data[website]:
+
+        if account["username"] == username:
+            return account
 
 
 def main():
@@ -99,20 +124,33 @@ def main():
     data = load_data()
     display_menu()
     user_input = get_user_input()
+    print()
 
     if user_input == 1:
 
         website, username, password = get_credentials()
-        account_exists = is_account_duplicate(website, username, data)
+        print()
 
-        if account_exists:
+        if account_exists(website, username, data):
             print("Account already exists with the same username!")
             return
         
-        save_data(website, username, password, data)
+        save_account(website, username, password, data)
     
     elif user_input == 2:
-        print("Coming Soon!")
+        
+        website, username = get_website_and_username()
+        print()
+        account_data = fetch_account(website, username, data)
+
+        if not account_data:
+            print("Account does not exist!")
+            return
+        
+        for entry in account_data:
+            print(f"{entry.title()}: {account_data[entry]}")     
+
+        return
 
 
 if __name__ == '__main__':
