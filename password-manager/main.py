@@ -150,8 +150,6 @@ def main():
         for entry in account_data:
             print(f"{entry.title()}: {account_data[entry]}")     
 
-        return
-
 
 if __name__ == '__main__':
     main()
