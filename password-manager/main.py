@@ -3,7 +3,8 @@ import json
 
 FEATURES = {
         1: "Add account",
-        2: "Search account"
+        2: "Search account",
+        3: "Delete account"
     }
 
 
@@ -16,9 +17,9 @@ def display_menu():
         print(f"{option_no}. {feature}")
 
 
-def get_user_input():
+def get_user_choice():
     '''
-    Take and validate user input. Return it after validation.
+    Take and validate user choice. Return it after validation.
     '''
 
     while True:
@@ -117,13 +118,36 @@ def fetch_account(website, username, data):
 
         if account["username"] == username:
             return account
+        
+def delete_account(website, username, data):
+    '''
+    Delete existing user account.
+    '''
+
+    if not account_exists(website, username, data):
+        print("Account does not exist!")
+        return
+        
+    for idx, account in enumerate(data[website]):
+
+        if account["username"] == username:
+            data[website].pop(idx)
+            break
+
+    if data[website] == []:
+        del data[website]
+
+    with open("passwords.json", "w") as file:
+        json.dump(data, file, indent=4)
+
+    print("Your account has been deleted successfully.")
 
 
 def main():
 
     data = load_data()
     display_menu()
-    user_input = get_user_input()
+    user_input = get_user_choice()
     print()
 
     if user_input == 1:
@@ -148,7 +172,13 @@ def main():
             return
         
         for entry in account_data:
-            print(f"{entry.title()}: {account_data[entry]}")     
+            print(f"{entry.title()}: {account_data[entry]}")
+
+    elif user_input == 3:
+
+        website, username = get_website_and_username()
+        print()
+        delete_account(website, username, data)
 
 
 if __name__ == '__main__':
