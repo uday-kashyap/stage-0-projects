@@ -8,6 +8,48 @@ FEATURES = {
     }
 
 
+def add_account(data):
+    '''
+    FEATURE: Add user account.
+    '''
+
+    website, username, password = get_credentials()
+    print()
+
+    if account_exists(website, username, data):
+        print("Account already exists with the same username!")
+        return
+        
+    save_account(website, username, password, data)
+
+
+def search_account(data):
+    '''
+    FEATURE: Search user account.
+    '''
+
+    website, username = get_website_and_username()
+    print()
+    account_data = fetch_account(website, username, data)
+
+    if not account_data:
+        print("Account does not exist!")
+        return
+        
+    for entry in account_data:
+        print(f"{entry.title()}: {account_data[entry]}")
+
+
+def delete_account(data):
+    '''
+    FEATURE: Delete user account.
+    '''
+
+    website, username = get_website_and_username()
+    print()
+    remove_account(website, username, data)
+
+
 def display_menu():
     '''
     Show system features menu to the user.
@@ -119,9 +161,10 @@ def fetch_account(website, username, data):
         if account["username"] == username:
             return account
         
-def delete_account(website, username, data):
+        
+def remove_account(website, username, data):
     '''
-    Delete existing user account.
+    Remove existing user account.
     '''
 
     if not account_exists(website, username, data):
@@ -151,34 +194,13 @@ def main():
     print()
 
     if user_input == 1:
+        add_account(data)
 
-        website, username, password = get_credentials()
-        print()
-
-        if account_exists(website, username, data):
-            print("Account already exists with the same username!")
-            return
-        
-        save_account(website, username, password, data)
-    
     elif user_input == 2:
-        
-        website, username = get_website_and_username()
-        print()
-        account_data = fetch_account(website, username, data)
-
-        if not account_data:
-            print("Account does not exist!")
-            return
-        
-        for entry in account_data:
-            print(f"{entry.title()}: {account_data[entry]}")
+        search_account(data)
 
     elif user_input == 3:
-
-        website, username = get_website_and_username()
-        print()
-        delete_account(website, username, data)
+        delete_account(data)
 
 
 if __name__ == '__main__':
