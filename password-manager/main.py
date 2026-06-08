@@ -21,6 +21,7 @@ def add_account(data):
         return
         
     save_account(website, username, password, data)
+    print("Your account has been created successfully.")
 
 
 def search_account(data):
@@ -30,14 +31,16 @@ def search_account(data):
 
     website, username = get_website_and_username()
     print()
+    
     account_data = fetch_account(website, username, data)
-
-    if not account_data:
-        print("Account does not exist!")
-        return
         
-    for entry in account_data:
-        print(f"{entry.title()}: {account_data[entry]}")
+    if account_data:
+
+        for entry in account_data:
+            print(f"{entry.title()}: {account_data[entry]}")
+
+    else:
+        print("Account does not exist!")
 
 
 def delete_account(data):
@@ -47,7 +50,14 @@ def delete_account(data):
 
     website, username = get_website_and_username()
     print()
-    remove_account(website, username, data)
+    
+    removed = remove_account(website, username, data)
+
+    if removed:
+        print("Your account has been deleted successfully.")
+
+    else:
+        print("Account does not exist!")
 
 
 def display_menu():
@@ -117,6 +127,7 @@ def load_data():
 def account_exists(website, username, data):
     '''
     Check for the pre-existing account with the same username and website name.
+    Return True if found, else False.
     '''
 
     if website in data:
@@ -144,8 +155,6 @@ def save_account(website, username, password, data):
 
     with open("passwords.json", "w") as file:
         json.dump(data, file, indent=4)
-    
-    print("Your account has been created successfully.")
 
 
 def fetch_account(website, username, data):
@@ -153,37 +162,39 @@ def fetch_account(website, username, data):
     Fetch user account and return it.
     '''
 
-    if not account_exists(website, username, data):
-        return {}
+    if website in data:
     
-    for account in data[website]:
+        for account in data[website]:
 
-        if account["username"] == username:
-            return account
+            if account["username"] == username:
+                return account
+        
+    return {}
         
         
 def remove_account(website, username, data):
     '''
     Remove existing user account.
+    Return True on success, else False.
     '''
+    
+    if website not in data:
+        return False
 
-    if not account_exists(website, username, data):
-        print("Account does not exist!")
-        return
-        
     for idx, account in enumerate(data[website]):
 
         if account["username"] == username:
             data[website].pop(idx)
-            break
 
-    if data[website] == []:
-        del data[website]
+            if data[website] == []:
+                del data[website]
 
-    with open("passwords.json", "w") as file:
-        json.dump(data, file, indent=4)
-
-    print("Your account has been deleted successfully.")
+            with open("passwords.json", "w") as file:
+                json.dump(data, file, indent=4)
+            
+            return True
+        
+    return False
 
 
 def main():
