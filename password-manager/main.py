@@ -1,45 +1,48 @@
 import json
 
 
+FILE_NAME = "passwords.json"
 FEATURES = {
         1: "Add account",
         2: "Search account",
-        3: "Delete account"
+        3: "Delete account",
+        4: "Update account"
     }
 
 
 def add_account(data: dict) -> None:
     '''
-    FEATURE: Add user account.
+    Add a new user account.
     '''
 
     website, username, password = get_credentials()
     print()
 
-    account_already_exists = account_exists(website, username, data)
-    
-    if account_already_exists:
+    account_idx = fetch_account_index(website, username, data)
+
+    if account_idx is not None:
         print("Account already exists with the same username!")
         return
         
-    save_account(website, username, password, data)
+    create_account(website, username, password, data)
+    save_to_JSON_file(FILE_NAME, data)
     print("Your account has been created successfully.")
 
 
 def search_account(data: dict) -> None:
     '''
-    FEATURE: Search user account.
+    Search for existing user account.
     '''
 
     website, username = get_website_and_username()
     print()
     
-    account_data = fetch_account(website, username, data)
+    account_idx = fetch_account_index(website, username, data)
         
-    if account_data:
+    if account_idx is not None:
 
-        for entry in account_data:
-            print(f"{entry.title()}: {account_data[entry]}")
+        for attribute, attribute_val in data[website][account_idx].items():
+            print(f"{attribute.title()}: {attribute_val}")
 
     else:
         print("Account does not exist!")
@@ -47,22 +50,96 @@ def search_account(data: dict) -> None:
 
 def delete_account(data: dict) -> None:
     '''
-    FEATURE: Delete user account.
+    Delete existing user account.
     '''
-
-    # Status mapping
-    statuses = {
-
-        "success": "Your account has been deleted successfully.",
-        "invalid_password": "Invalid password!",
-        "account_not_found": "Account does not exist!"
-    }
 
     website, username, password = get_credentials()
     print()
     
-    status = remove_account(website, username, password, data)
-    print(statuses[status])
+    account_idx = fetch_account_index(website, username, data)
+
+    if account_idx is not None:
+
+        valid_password = validate_password(website, password, data, account_idx)
+
+        if valid_password:
+
+            data[website].pop(account_idx)
+
+            if not data[website]:
+                del data[website]
+
+            save_to_JSON_file(FILE_NAME, data)
+            print("Your account has been deleted successfully.")
+
+        else:
+            print("Invalid password!")
+
+    else:
+        print("Account does not exist!")
+
+
+def update_account(data: dict) -> None:
+    '''
+    Update existing user account.
+    '''
+
+    website, username, password = get_credentials()
+    print()
+
+    account_idx = fetch_account_index(website, username, data)
+
+    if account_idx is not None:
+
+        valid_password = validate_password(website, password, data, account_idx)
+
+        if valid_password:
+            
+            new_username = input("Enter a new username: ")
+            new_password = input("Enter a new password: ")
+            print()
+
+            target_account = data[website][account_idx]
+                
+            # Update attributes
+            target_account["username"] = new_username
+            target_account["password"] = new_password
+
+            save_to_JSON_file(FILE_NAME, data)
+            print("Your account has been updated successfully.")
+                
+        else:
+            print("Invalid password!")
+                    
+    else:
+        print("Account does not exist!")
+
+
+def validate_password(website: str, password: str, data: dict, account_idx: int) -> bool:
+    '''
+    Validate provided password to the actual password of the account.
+    Return True if matches, else False.
+    '''
+
+    target_account = data[website][account_idx]
+
+    if target_account["password"] == password:
+        return True
+    
+    return False
+
+
+def save_to_JSON_file(file_name: str, data: dict) -> None:
+    '''
+    Save all the modified, added or deleted changes to the data containing file.
+    '''
+
+    try:
+        with open(file_name, "w") as file:
+            json.dump(data, file, indent=4)
+
+    except Exception as e:
+        print(e)
 
 
 def display_menu() -> None:
@@ -116,100 +193,54 @@ def get_website_and_username() -> tuple[str, str]:
     return website, username
 
 
-def load_data() -> dict:
+def load_data_from_JSON_file(file_name: str) -> dict:
     '''
     Load and return existing data.
     '''
     
     try:
-        with open("passwords.json", "r") as file:
+        with open(file_name, "r") as file:
             return json.load(file)
         
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
-    
 
-def account_exists(website: str, username: str, data: dict) -> bool:
+
+def create_account(website: str, username: str, password: str, data: dict) -> None:
     '''
-    Check for the pre-existing account with the same username and website name.
-    Return True if found, else False.
-    '''
-
-    if website in data:
-        
-        for account in data[website]:
-
-            if account["username"] == username:
-                return True
-    
-    return False
-
-
-def save_account(website: str, username: str, password: str, data: dict) -> None:
-    '''
-    Create new user account and store their credentials.
+    Create a new user account.
     '''
 
+    new_account = {
+        "username": username,
+        "password": password
+    }
+
+    # Root dictionary modifications
     if website not in data:
         data[website] = []
 
-    data[website].append({
-        "username": username,
-        "password": password
-    })
-
-    with open("passwords.json", "w") as file:
-        json.dump(data, file, indent=4)
+    data[website].append(new_account)
 
 
-def fetch_account(website: str, username: str, data: dict) -> dict:
+def fetch_account_index(website: str, username: str, data: dict) -> int | None:
     '''
-    Fetch user account and return it.
+    Fetch user account's index and return it.
     '''
 
     if website in data:
     
-        for account in data[website]:
-
-            if account["username"] == username:
-                return account
-        
-    return {}
-        
-        
-def remove_account(website: str, username: str, password: str, data: dict) -> str:
-    '''
-    Remove existing user account.
-    Return operation status.
-    '''
-    
-    if website in data:
-
         for idx, account in enumerate(data[website]):
 
             if account["username"] == username:
-
-                if account["password"] == password:
-
-                    data[website].pop(idx)
-
-                    if not data[website]:
-                        del data[website]
-
-                    with open("passwords.json", "w") as file:
-                        json.dump(data, file, indent=4)
-                    
-                    return "success"
-                
-                else:
-                    return "invalid_password" 
-        
-    return "account_not_found"
+                return idx
+    
+    return None
 
 
 def main() -> None:
 
-    data = load_data()
+    data = load_data_from_JSON_file(FILE_NAME)
     display_menu()
     user_input = get_user_choice()
     print()
@@ -222,6 +253,9 @@ def main() -> None:
 
     elif user_input == 3:
         delete_account(data)
+
+    elif user_input == 4:
+        update_account(data)
 
 
 if __name__ == '__main__':
