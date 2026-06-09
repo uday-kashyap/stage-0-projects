@@ -8,7 +8,7 @@ FEATURES = {
     }
 
 
-def add_account(data):
+def add_account(data: dict) -> None:
     '''
     FEATURE: Add user account.
     '''
@@ -24,7 +24,7 @@ def add_account(data):
     print("Your account has been created successfully.")
 
 
-def search_account(data):
+def search_account(data: dict) -> None:
     '''
     FEATURE: Search user account.
     '''
@@ -43,7 +43,7 @@ def search_account(data):
         print("Account does not exist!")
 
 
-def delete_account(data):
+def delete_account(data: dict) -> None:
     '''
     FEATURE: Delete user account.
     '''
@@ -60,7 +60,7 @@ def delete_account(data):
         print("Account does not exist!")
 
 
-def display_menu():
+def display_menu() -> None:
     '''
     Show system features menu to the user.
     '''
@@ -69,7 +69,7 @@ def display_menu():
         print(f"{option_no}. {feature}")
 
 
-def get_user_choice():
+def get_user_choice() -> int:
     '''
     Take and validate user choice. Return it after validation.
     '''
@@ -88,7 +88,7 @@ def get_user_choice():
             print("Options must be integers!")
 
 
-def get_credentials():
+def get_credentials() -> tuple[str, str, str]:
     '''
     Input and return user credentials.
     '''
@@ -100,7 +100,7 @@ def get_credentials():
     return website, username, password
 
 
-def get_website_and_username():
+def get_website_and_username() -> tuple[str, str]:
     '''
     Input and return 'website' and 'username'.
     '''
@@ -111,7 +111,7 @@ def get_website_and_username():
     return website, username
 
 
-def load_data():
+def load_data() -> dict:
     '''
     Load and return existing data.
     '''
@@ -124,7 +124,7 @@ def load_data():
         return {}
     
 
-def account_exists(website, username, data):
+def account_exists(website: str, username: str, data: dict) -> bool:
     '''
     Check for the pre-existing account with the same username and website name.
     Return True if found, else False.
@@ -140,7 +140,7 @@ def account_exists(website, username, data):
     return False
 
 
-def save_account(website, username, password, data):
+def save_account(website: str, username: str, password: str, data: dict) -> None:
     '''
     Create new user account and store their credentials.
     '''
@@ -157,7 +157,7 @@ def save_account(website, username, password, data):
         json.dump(data, file, indent=4)
 
 
-def fetch_account(website, username, data):
+def fetch_account(website: str, username: str, data: dict) -> dict:
     '''
     Fetch user account and return it.
     '''
@@ -172,7 +172,7 @@ def fetch_account(website, username, data):
     return {}
         
         
-def remove_account(website, username, data):
+def remove_account(website: str, username: str, data: dict) -> bool:
     '''
     Remove existing user account.
     Return True on success, else False.
@@ -197,7 +197,7 @@ def remove_account(website, username, data):
     return False
 
 
-def main():
+def main() -> None:
 
     data = load_data()
     display_menu()
