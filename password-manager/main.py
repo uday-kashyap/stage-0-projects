@@ -178,21 +178,20 @@ def remove_account(website: str, username: str, data: dict) -> bool:
     Return True on success, else False.
     '''
     
-    if website not in data:
-        return False
+    if website in data:
 
-    for idx, account in enumerate(data[website]):
+        for idx, account in enumerate(data[website]):
 
-        if account["username"] == username:
-            data[website].pop(idx)
+            if account["username"] == username:
+                data[website].pop(idx)
 
-            if data[website] == []:
-                del data[website]
+                if not data[website]:
+                    del data[website]
 
-            with open("passwords.json", "w") as file:
-                json.dump(data, file, indent=4)
-            
-            return True
+                with open("passwords.json", "w") as file:
+                    json.dump(data, file, indent=4)
+                
+                return True
         
     return False
 
