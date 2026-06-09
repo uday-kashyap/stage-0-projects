@@ -16,7 +16,9 @@ def add_account(data: dict) -> None:
     website, username, password = get_credentials()
     print()
 
-    if account_exists(website, username, data):
+    account_already_exists = account_exists(website, username, data)
+    
+    if account_already_exists:
         print("Account already exists with the same username!")
         return
         
@@ -48,16 +50,19 @@ def delete_account(data: dict) -> None:
     FEATURE: Delete user account.
     '''
 
-    website, username = get_website_and_username()
+    # Status mapping
+    statuses = {
+
+        "success": "Your account has been deleted successfully.",
+        "invalid_password": "Invalid password!",
+        "account_not_found": "Account does not exist!"
+    }
+
+    website, username, password = get_credentials()
     print()
     
-    removed = remove_account(website, username, data)
-
-    if removed:
-        print("Your account has been deleted successfully.")
-
-    else:
-        print("Account does not exist!")
+    status = remove_account(website, username, password, data)
+    print(statuses[status])
 
 
 def display_menu() -> None:
@@ -172,10 +177,10 @@ def fetch_account(website: str, username: str, data: dict) -> dict:
     return {}
         
         
-def remove_account(website: str, username: str, data: dict) -> bool:
+def remove_account(website: str, username: str, password: str, data: dict) -> str:
     '''
     Remove existing user account.
-    Return True on success, else False.
+    Return operation status.
     '''
     
     if website in data:
@@ -183,17 +188,23 @@ def remove_account(website: str, username: str, data: dict) -> bool:
         for idx, account in enumerate(data[website]):
 
             if account["username"] == username:
-                data[website].pop(idx)
 
-                if not data[website]:
-                    del data[website]
+                if account["password"] == password:
 
-                with open("passwords.json", "w") as file:
-                    json.dump(data, file, indent=4)
+                    data[website].pop(idx)
+
+                    if not data[website]:
+                        del data[website]
+
+                    with open("passwords.json", "w") as file:
+                        json.dump(data, file, indent=4)
+                    
+                    return "success"
                 
-                return True
+                else:
+                    return "invalid_password" 
         
-    return False
+    return "account_not_found"
 
 
 def main() -> None:
