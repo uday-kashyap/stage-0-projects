@@ -1,6 +1,7 @@
 import json
 
 FILE_NAME = "passwords.json"
+
 FEATURES = {
     1: "Add account",
     2: "Search account",
@@ -236,22 +237,19 @@ def fetch_account_index(website: str, username: str, data: dict) -> int | None:
 
 def main() -> None:
 
+    ACTIONS = {
+        1: add_account,
+        2: search_account,
+        3: delete_account,
+        4: update_account
+    }
+
     data = load_data_from_JSON_file(FILE_NAME)
     display_menu()
-    user_input = get_user_choice()
+    user_choice = get_user_choice()
     print()
 
-    if user_input == 1:
-        add_account(data)
-
-    elif user_input == 2:
-        search_account(data)
-
-    elif user_input == 3:
-        delete_account(data)
-
-    elif user_input == 4:
-        update_account(data)
+    ACTIONS[user_choice](data)
 
 
 if __name__ == "__main__":
