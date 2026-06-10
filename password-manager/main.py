@@ -25,8 +25,14 @@ def add_account(data: dict) -> None:
         return
 
     create_account(website, username, password, data)
-    save_to_JSON_file(FILE_NAME, data)
-    print("Your account has been created successfully.")
+
+    saved = save_to_JSON_file(FILE_NAME, data)
+
+    if saved:
+        print("Your account has been created successfully.")
+
+    else:
+        print("Failed to save data!")
 
 
 def search_account(data: dict) -> None:
@@ -69,8 +75,13 @@ def delete_account(data: dict) -> None:
             if not data[website]:
                 del data[website]
 
-            save_to_JSON_file(FILE_NAME, data)
-            print("Your account has been deleted successfully.")
+            saved = save_to_JSON_file(FILE_NAME, data)
+
+            if saved:
+                print("Your account has been deleted successfully.")
+
+            else:
+                print("Failed to save data!")
 
         else:
             print("Invalid password!")
@@ -105,8 +116,13 @@ def update_account(data: dict) -> None:
             target_account["username"] = new_username
             target_account["password"] = new_password
 
-            save_to_JSON_file(FILE_NAME, data)
-            print("Your account has been updated successfully.")
+            saved = save_to_JSON_file(FILE_NAME, data)
+
+            if saved:
+                print("Your account has been updated successfully.")
+
+            else:
+                print("Failed to save data!")
 
         else:
             print("Invalid password!")
@@ -129,17 +145,20 @@ def validate_password(website: str, password: str, data: dict, account_idx: int)
     return False
 
 
-def save_to_JSON_file(file_name: str, data: dict) -> None:
+def save_to_JSON_file(file_name: str, data: dict) -> bool:
     """
-    Save all the modified, added or deleted changes to the data containing file.
+    Save data to a JSON file.
+    Return True on success, else False.
     """
 
     try:
         with open(file_name, "w") as file:
             json.dump(data, file, indent=4)
 
-    except Exception as e:
-        print(e)
+        return True
+
+    except OSError:
+        return False
 
 
 def display_menu() -> None:
