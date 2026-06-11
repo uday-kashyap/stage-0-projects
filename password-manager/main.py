@@ -138,11 +138,7 @@ def validate_password(website: str, password: str, data: dict, account_idx: int)
     """
 
     target_account = data[website][account_idx]
-
-    if target_account["password"] == password:
-        return True
-
-    return False
+    return target_account["password"] == password
 
 
 def save_to_JSON_file(file_name: str, data: dict) -> bool:
