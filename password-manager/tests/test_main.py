@@ -1,43 +1,38 @@
 import main
+import json
+import pytest
 
-def test_fetch_account_index_returns_correct_index():
-    data = {"github": [{"username": "example_user", "password": "exampleuser"}]}
+@pytest.fixture
+def sample_account_data():
+    return {"github": [{"username": "example_user", "password": "exampleuser"}]}
 
-    result = main.fetch_account_index("github", "example_user", data)
+def test_fetch_account_index_returns_correct_index(sample_account_data):
+    result = main.fetch_account_index("github", "example_user", sample_account_data)
 
     assert result == 0
 
-def test_fetch_account_index_returns_none_for_missing_username():
-    data = {"github": [{"username": "example_user", "password": "exampleuser"}]}
-
-    result = main.fetch_account_index("github", "example_user1", data)
+def test_fetch_account_index_returns_none_for_missing_username(sample_account_data):
+    result = main.fetch_account_index("github", "example_user1", sample_account_data)
 
     assert result is None
 
-def test_fetch_account_index_returns_none_for_missing_website():
-    data = {"github": [{"username": "example_user", "password": "exampleuser"}]}
-
-    result = main.fetch_account_index("google", "example_user", data)
+def test_fetch_account_index_returns_none_for_missing_website(sample_account_data):
+    result = main.fetch_account_index("google", "example_user", sample_account_data)
 
     assert result is None
 
-def test_validate_password_returns_true_for_correct_password():
-    data = {"github": [{"username": "example_user", "password": "exampleuser"}]}
-
-    result = main.validate_password("github", "exampleuser", data, 0)
+def test_validate_password_returns_true_for_correct_password(sample_account_data):
+    result = main.validate_password("github", "exampleuser", sample_account_data, 0)
 
     assert result is True
 
-def test_validate_password_returns_false_for_incorrect_password():
-    data = {"github": [{"username": "example_user", "password": "exampleuser"}]}
-
-    result = main.validate_password("github", "example_user", data, 0)
+def test_validate_password_returns_false_for_incorrect_password(sample_account_data):
+    result = main.validate_password("github", "example_user", sample_account_data, 0)
 
     assert result is False
 
 def test_create_account_for_new_website():
     data = {}
-
     main.create_account("google", "user123", "secret", data)
 
     assert data == {
@@ -47,23 +42,16 @@ def test_create_account_for_new_website():
         }]
     }
 
-def test_create_account_for_existing_website():
-    data = {
-        "google": [{
-            "username": "user123",
-            "password": "secret"
-        }]
-    }
+def test_create_account_for_existing_website(sample_account_data):
+    data = sample_account_data
+    main.create_account("github", "user345", "secret_no_more", data)
 
-    main.create_account("google", "user345", "secret_no_more", data)
-
-    assert len(data["google"]) > 1
+    assert len(data["github"]) > 1
 
 def test_create_account_appends_correct_data():
     data = {
         "google": []
     }
-
     main.create_account("google", "user345", "secret_no_more", data)
 
     assert data["google"][0] == {
@@ -71,34 +59,42 @@ def test_create_account_appends_correct_data():
             "password": "secret_no_more"
         }
     
-def test_load_data_from_JSON_file_loads_existing_file():
-    file_name = r"tests\test_data\valid_passwords.json"
+def test_load_data_from_JSON_file_loads_existing_file(tmp_path, sample_account_data):
+    file_path = tmp_path / "valid_passwords.json"
+    expected = sample_account_data
+    file_path.write_text(json.dumps(expected))
+    result = main.load_data_from_JSON_file(file_path)
 
-    data = {
-        "google": [{
-            "username": "exampleuser1",
-            "password": "example1user"
-        }]
-    }
+    assert result == expected
 
-    result = main.load_data_from_JSON_file(file_name)
+def test_load_data_from_JSON_file_loads_empty_file(tmp_path):
+    file_path = tmp_path / "empty_password.json"
+    file_path.write_text(json.dumps({}))
+    result = main.load_data_from_JSON_file(file_path)
 
-    assert data == result
+    assert result == {}
 
-def test_load_data_from_JSON_file_loads_empty_file():
-    file_name = r"tests\test_data\empty_passwords.json"
-    
-    data = {}
+def test_load_data_from_JSON_file_loads_non_existing_file(tmp_path):
+    file_path = tmp_path / "does_not_exist.txt"
+    result = main.load_data_from_JSON_file(file_path)
 
-    result = main.load_data_from_JSON_file(file_name)
+    assert result == {}
 
-    assert data == result
+def test_save_to_JSON_file_saves_data_to_a_missing_file(tmp_path, sample_account_data):
+    file_path = tmp_path / "saved_passwords.json"
 
-def test_load_data_from_JSON_file_loads_non_existing_file():
-    file_name = "does_not_exist.txt"
-    
-    data = {}
+    # Check for the missing file
+    assert not file_path.exists()
 
-    result = main.load_data_from_JSON_file(file_name)
+    saved = main.save_to_JSON_file(file_path, sample_account_data)
 
-    assert data == result
+    # Check for the file created through the helper method
+    assert file_path.exists()
+
+    assert saved is True
+
+    # Verify the exact provided data
+    with open(file_path, "r") as file:
+        loaded_data = json.load(file)
+        
+    assert loaded_data == sample_account_data
