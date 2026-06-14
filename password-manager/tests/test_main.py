@@ -2,34 +2,47 @@ import main
 import json
 import pytest
 
+
 @pytest.fixture
 def sample_account_data():
     return {"github": [{"username": "example_user", "password": "exampleuser"}]}
 
-def test_fetch_account_index_returns_correct_index(sample_account_data):
-    result = main.fetch_account_index("github", "example_user", sample_account_data)
 
-    assert result == 0
+@pytest.mark.parametrize(
+        "website, username, expected",
+        [
+            ("github", "example_user", 0),
+            ("github", "example_user1", None),
+            ("google", "example_user", None)
+        ],
+        ids=[
+            "account-found",
+            "missing_username",
+            "missing-website"
+        ]
+)
+def test_fetch_account_index(sample_account_data, website, username, expected):
+    result = main.fetch_account_index(website, username, sample_account_data)
 
-def test_fetch_account_index_returns_none_for_missing_username(sample_account_data):
-    result = main.fetch_account_index("github", "example_user1", sample_account_data)
+    assert result == expected
 
-    assert result is None
 
-def test_fetch_account_index_returns_none_for_missing_website(sample_account_data):
-    result = main.fetch_account_index("google", "example_user", sample_account_data)
+@pytest.mark.parametrize(
+        "website, password, account_idx, expected",
+        [
+            ("github", "exampleuser", 0, True),
+            ("github", "example_user", 0, False)
+        ],
+        ids=[
+            "correct-password",
+            "incorrect-password"
+        ]
+)
+def test_validate_password(sample_account_data, website, password, account_idx, expected):
+    result = main.validate_password(website, password, sample_account_data, account_idx)
 
-    assert result is None
+    assert result == expected
 
-def test_validate_password_returns_true_for_correct_password(sample_account_data):
-    result = main.validate_password("github", "exampleuser", sample_account_data, 0)
-
-    assert result is True
-
-def test_validate_password_returns_false_for_incorrect_password(sample_account_data):
-    result = main.validate_password("github", "example_user", sample_account_data, 0)
-
-    assert result is False
 
 def test_create_account_for_new_website():
     data = {}
